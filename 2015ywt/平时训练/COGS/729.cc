@@ -8,7 +8,7 @@ const int MAX_V = 500;
 const int MAX_M = 50000;
 const int INF = 99999999;
 int S , T , cntN , n , m , ans = 0;
-
+int theSum = 0;
 struct Edge
 {
 	int t, c;
@@ -85,71 +85,72 @@ int maxflow()
 
 void prepare()
 {
-    scanf("%d%d",&n,&m);
+    scanf("%d%d",&m,&n);
     totEdge = edges;
     memset(E,NULL,sizeof(E));
     S = 0;
-    T = n + n + 1;
+    T = n + m + 1;
     cntN = T + 1;
 }
 
 void make_graph()
 {
+    int x;
     for (int i = 1; i <= m ; i ++)
     {
-        int x, y;
-        scanf("%d%d",&x,&y);
-        addEdge(x , y + n , 1);
+        scanf("%d",&x);
+        addEdge(S,i,x);
+        theSum += x;
     }
-    for (int i = 1; i <= n ; i ++)
+    for (int i = 1 ; i <= n ; i ++)
     {
-        addEdge(S,i,1);
-        addEdge(i+n,T,1);
+        scanf("%d",&x);
+
+        addEdge(i+m,T,x);
     }
+    for (int i = 1; i <= m ; i ++)
+        for (int j = 1; j <= n ; j ++)
+        {
+            addEdge(i,j+m,1);
+        }
 }
 
 void print()
 {
 
-    ans = n - maxflow();
-    if (DEBUG)
+    ans = maxflow();
+    if (ans == theSum)
     {
-        for (Edge *p = E[4];p != NULL ; p = p-> n)
-            cout << p->t - n << endl;
-    }
-    for (int i = 1; i <= n ; i ++)
-    {
-        int now = i;
-        if (E[now + n]->c != 0)
+        puts("1");
+        for (int i = 1; i <= m ; i ++)
         {
-            printf("%d",now);
             bool flag = true;
-            while(flag)
+            for (Edge * p = E[i]; p != NULL ; p = p->n)
             {
-                flag = false;
-                for (Edge *p = E[now]; p != NULL ; p = p->n)
+                if (p->t != S && p->c == 0)
                 {
-                    if (p->c == 0)
+                    if (flag)
                     {
-                        if (p->t == 0) break;
-                        printf(" %d",p->t - n);
-                        now = p->t - n;
-                        flag = true;
-                        break;
+                        printf("%d" , p->t - m);
+                        flag = false;
+                        continue;
                     }
+                    printf(" %d",p->t - m);
                 }
             }
-            printf("\n");
+            puts("");
         }
     }
-    printf("%d\n",ans);
+    else{
+        printf("%d\n",0);
+    }
 
 }
 
 int main()
 {
-    freopen("path3.in","r",stdin);
-    freopen("path3.out","w",stdout);
+    freopen("roundtable.in","r",stdin);
+    freopen("roundtable.out","w",stdout);
     prepare();
     make_graph();
     print();

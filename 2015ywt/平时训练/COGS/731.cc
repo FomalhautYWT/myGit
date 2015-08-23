@@ -1,13 +1,14 @@
 #include<iostream>
-#include<cstdio>
-#include<cstdlib>
 #include<cstring>
+#include<cstdio>
+#include<algorithm>
+
 using namespace std;
-#define DEBUG 0
-const int MAX_V = 500;
-const int MAX_M = 50000;
+
+const int MAX_V = 50000;
+const int MAX_M = 500000;
 const int INF = 99999999;
-int S , T , cntN , n , m , ans = 0;
+int S , T , cntN , ans = 0;
 
 struct Edge
 {
@@ -83,74 +84,73 @@ int maxflow()
 	return flow;
 }
 
+int a[50000];
+int f[50000];
+int n;
+int dpans;
+void dp()
+{
+    for (int i = n ; i >= 1 ; i --){
+
+
+        for (int j = i + 1 ; j <= n ; j ++)
+        {
+            if (a[i] <= a[j]) f[i] = max(f[i],f[j] + 1);
+            if (dpans < f[i]) dpans = f[i];
+        }
+
+    }
+
+
+}
 void prepare()
 {
-    scanf("%d%d",&n,&m);
+    dpans = 0;
+    ans = 0;
+    for (int i = 1; i <= n ; i ++) f[i] = 1;
     totEdge = edges;
     memset(E,NULL,sizeof(E));
     S = 0;
-    T = n + n + 1;
+    T = 2 * n + 1;
     cntN = T + 1;
 }
 
 void make_graph()
 {
-    for (int i = 1; i <= m ; i ++)
+    for(int i = 1 ; i <= n ; i ++)
     {
-        int x, y;
-        scanf("%d%d",&x,&y);
-        addEdge(x , y + n , 1);
+        addEdge(i,i+n,1);
+        if (f[i] == dpans) addEdge(S,i,INF);
+        if (f[i] == 1 ) addEdge(i + n , T , INF);
     }
     for (int i = 1; i <= n ; i ++)
-    {
-        addEdge(S,i,1);
-        addEdge(i+n,T,1);
-    }
+        for (int j = i ; j <= n ; j ++)
+        if (j > i && a[j] >= a[i] && f[j]+1 == f[i]) addEdge(i+n,j,1);
 }
 
 void print()
 {
-
-    ans = n - maxflow();
-    if (DEBUG)
-    {
-        for (Edge *p = E[4];p != NULL ; p = p-> n)
-            cout << p->t - n << endl;
-    }
-    for (int i = 1; i <= n ; i ++)
-    {
-        int now = i;
-        if (E[now + n]->c != 0)
-        {
-            printf("%d",now);
-            bool flag = true;
-            while(flag)
-            {
-                flag = false;
-                for (Edge *p = E[now]; p != NULL ; p = p->n)
-                {
-                    if (p->c == 0)
-                    {
-                        if (p->t == 0) break;
-                        printf(" %d",p->t - n);
-                        now = p->t - n;
-                        flag = true;
-                        break;
-                    }
-                }
-            }
-            printf("\n");
-        }
-    }
+    printf("%d\n",dpans);
+    int last = maxflow();
+    printf("%d\n",last);
+    addEdge(1,1+n,INF);
+    addEdge(n,n+n,INF);
+    //addEdge(S,1,INF);
+    //addEdge(n+n,T,INF);
+    ans = maxflow()+last;
+    if (ans > n) ans = n;
     printf("%d\n",ans);
-
 }
 
 int main()
 {
-    freopen("path3.in","r",stdin);
-    freopen("path3.out","w",stdout);
+    freopen("alis.in","r",stdin);
+    freopen("alis.out","w",stdout);
+    scanf("%d",&n);
+    for (int i = 1 ; i <= n ; i ++)
+        scanf("%d",&a[i]);
     prepare();
+    dp();
     make_graph();
     print();
     fclose(stdin);

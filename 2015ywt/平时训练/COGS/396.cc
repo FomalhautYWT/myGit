@@ -4,9 +4,10 @@
 #include<cstring>
 using namespace std;
 #define DEBUG 0
-const int MAX_V = 500;
-const int MAX_M = 50000;
+const int MAX_V = 5000;
+const int MAX_M = 500000;
 const int INF = 99999999;
+int is[10002];
 int S , T , cntN , n , m , ans = 0;
 
 struct Edge
@@ -82,10 +83,10 @@ int maxflow()
 	}
 	return flow;
 }
-
+bool yes;
 void prepare()
 {
-    scanf("%d%d",&n,&m);
+    yes = false;
     totEdge = edges;
     memset(E,NULL,sizeof(E));
     S = 0;
@@ -95,12 +96,14 @@ void prepare()
 
 void make_graph()
 {
-    for (int i = 1; i <= m ; i ++)
-    {
-        int x, y;
-        scanf("%d%d",&x,&y);
-        addEdge(x , y + n , 1);
-    }
+    for (int i = 1; i <= 100 ; i ++)
+        is[i * i] = true;
+    for (int i = 1; i <= n ; i ++)
+        for (int j = 1 ; j < i ; j ++)
+        {
+            if (is[i + j])
+                addEdge(j , i + n , 1);
+        }
     for (int i = 1; i <= n ; i ++)
     {
         addEdge(S,i,1);
@@ -108,51 +111,37 @@ void make_graph()
     }
 }
 
+int Xans;
 void print()
 {
-
     ans = n - maxflow();
-    if (DEBUG)
+    if (ans > Xans)
     {
-        for (Edge *p = E[4];p != NULL ; p = p-> n)
-            cout << p->t - n << endl;
+        yes = true;
     }
-    for (int i = 1; i <= n ; i ++)
-    {
-        int now = i;
-        if (E[now + n]->c != 0)
-        {
-            printf("%d",now);
-            bool flag = true;
-            while(flag)
-            {
-                flag = false;
-                for (Edge *p = E[now]; p != NULL ; p = p->n)
-                {
-                    if (p->c == 0)
-                    {
-                        if (p->t == 0) break;
-                        printf(" %d",p->t - n);
-                        now = p->t - n;
-                        flag = true;
-                        break;
-                    }
-                }
-            }
-            printf("\n");
-        }
-    }
-    printf("%d\n",ans);
-
 }
 
 int main()
 {
-    freopen("path3.in","r",stdin);
-    freopen("path3.out","w",stdout);
-    prepare();
-    make_graph();
-    print();
+    freopen("balla.in","r",stdin);
+    freopen("balla.out","w",stdout);
+    scanf("%d",&Xans);
+    yes = false;
+    int l = 1 , r = 1600;
+
+    while (r != l)
+    {
+        int mid = l + r >> 1 ;
+        n = mid;
+        prepare();
+        make_graph();
+        print();
+        if (yes) r = mid;
+        else l = mid + 1;
+    }
+
+    printf("%d\n",l - 1);
+
     fclose(stdin);
     fclose(stdout);
 }
